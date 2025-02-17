@@ -1,0 +1,57 @@
+import logging
+import asyncio
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.filters import Command
+
+# Токен бота
+TOKEN = '7446071433:AAF9DsFTKjQu7wuMj8iwKaDIK-Y5a89mQhk'
+
+# ID Лены
+LENA_CHAT_ID = '1326402096'
+
+# Настройка логирования
+logging.basicConfig(level=logging.INFO)
+
+# Создаем объекты бота и диспетчера
+bot = Bot(token=TOKEN)
+dp = Dispatcher()
+
+# Создаем клавиатуру
+keyboard = ReplyKeyboardMarkup(
+    keyboard=[
+        [KeyboardButton(text="Старт")],
+        [KeyboardButton(text="🚙 Машинка")],
+        [KeyboardButton(text="😫 Много работы")]
+    ],
+    resize_keyboard=True
+)
+
+# Обработчик команды /start
+@dp.message(Command("start"))
+async def start(message: types.Message):
+    await message.answer("Привет! Чем могу помочь?", reply_markup=keyboard)
+
+# Обработчик кнопки "Старт"
+@dp.message(lambda message: message.text == "Старт")
+async def send_greeting(message: types.Message):
+    await message.answer("Здравствуй! Как я могу помочь?", reply_markup=keyboard)
+
+# Обработчик кнопки "🚙 Машинка"
+@dp.message(lambda message: message.text == "🚙 Машинка")
+async def send_car_message(message: types.Message):
+    await bot.send_message(LENA_CHAT_ID, "Я поехал 🚗")  # Сообщение Лене
+    await message.answer("Сообщение Лене, что ты поехал, успешно отправлено ✅", reply_markup=keyboard)  # Подтверждение тебе
+
+# Обработчик кнопки "😫 Много работы"
+@dp.message(lambda message: message.text == "😫 Много работы")
+async def send_work_message(message: types.Message):
+    await bot.send_message(LENA_CHAT_ID, "Много работы, выезжаю чуть позже 😫")  # Сообщение Лене
+    await message.answer("Сообщение Лене, что ты задерживаешься, успешно отправлено ✅", reply_markup=keyboard)  # Подтверждение тебе
+
+# Запуск бота
+async def main():
+    await dp.start_polling(bot)
+
+if __name__ == "__main__":
+    asyncio.run(main())
